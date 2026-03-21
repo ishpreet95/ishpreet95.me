@@ -1,0 +1,89 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/about', label: 'About' },
+  { href: '/projects', label: 'Projects' },
+];
+
+function isActive(href: string): boolean {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+}
+---
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-background">
+  <nav class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a href="/" class="font-serif italic text-on-surface text-lg hover:text-primary transition-colors duration-150">
+      Ishpreet
+    </a>
+
+    <!-- Desktop nav -->
+    <div class="hidden md:flex items-center gap-8">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'text-sm font-sans transition-colors duration-150',
+            isActive(link.href)
+              ? 'text-on-surface border-b-2 border-primary pb-0.5'
+              : 'text-on-surface-variant hover:text-on-surface',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+
+    <!-- Right side: theme toggle (always visible) + mobile hamburger -->
+    <div class="flex items-center gap-2">
+      <ThemeToggle />
+      <button
+        id="mobile-menu-btn"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        class="md:hidden w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface"
+      >
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-background border-t border-[var(--ghost-border)]">
+    <div class="px-4 py-4 flex flex-col gap-4">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'text-sm font-sans py-1',
+            isActive(link.href)
+              ? 'text-on-surface font-medium'
+              : 'text-on-surface-variant hover:text-on-surface',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('#mobile-menu-btn');
+    if (!btn) return;
+    var menu = document.getElementById('mobile-menu');
+    if (!menu) return;
+    var isOpen = !menu.classList.contains('hidden');
+    menu.classList.toggle('hidden');
+    btn.setAttribute('aria-expanded', String(!isOpen));
+  });
+</script>

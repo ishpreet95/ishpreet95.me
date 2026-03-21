@@ -1,0 +1,298 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Fonts */
+@import "@fontsource-variable/newsreader";
+@import "@fontsource-variable/inter";
+@import "@fontsource/geist-mono";
+
+/* ============================================
+   Theme Variables — Dark Mode Default
+   ============================================ */
+:root {
+  --bg: #0c0e10;
+  --surface-low: #111416;
+  --surface-container: #171a1d;
+  --surface-high: #1e2225;
+  --surface-bright: #282d31;
+  --primary: #bbcbbb;
+  --on-primary: #1a2a1a;
+  --on-surface: #e2e6eb;
+  --on-surface-variant: #a8abb0;
+  --accent: #ffd6d6;
+  --code-bg: #050607;
+  --tag-bg: #1a2520;
+  --tag-text: #9aab9a;
+  --ghost-border: rgba(168, 171, 176, 0.15);
+}
+
+/* Light Theme */
+html.light {
+  --bg: #f8f9fa;
+  --surface-low: #f1f4f5;
+  --surface-container: #eaedee;
+  --surface-high: #e5e9eb;
+  --surface-bright: #dde1e3;
+  --primary: #48655f;
+  --on-primary: #ffffff;
+  --on-surface: #2d3335;
+  --on-surface-variant: #5a5f62;
+  --accent: #c45555;
+  --code-bg: #eef1f3;
+  --tag-bg: #e2ebe8;
+  --tag-text: #3d5550;
+  --ghost-border: rgba(90, 95, 98, 0.15);
+}
+
+/* ============================================
+   Tailwind Theme Mapping
+   ============================================ */
+@theme {
+  --font-serif: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter Variable', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', 'Fira Code', monospace;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-surface-low: var(--surface-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-high: var(--surface-high);
+  --color-surface-bright: var(--surface-bright);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-accent: var(--accent);
+  --color-code-bg: var(--code-bg);
+  --color-tag-bg: var(--tag-bg);
+  --color-tag-text: var(--tag-text);
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--on-surface);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Theme transition */
+@media (prefers-reduced-motion: no-preference) {
+  html.transitioning,
+  html.transitioning * {
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+  }
+}
+
+/* ============================================
+   Focus Styles
+   ============================================ */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   Typography — Prose Overrides
+   ============================================ */
+.prose {
+  --tw-prose-body: var(--on-surface);
+  --tw-prose-headings: var(--on-surface);
+  --tw-prose-lead: var(--on-surface-variant);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--on-surface);
+  --tw-prose-counters: var(--on-surface-variant);
+  --tw-prose-bullets: var(--on-surface-variant);
+  --tw-prose-hr: var(--surface-high);
+  --tw-prose-quotes: var(--on-surface-variant);
+  --tw-prose-quote-borders: var(--primary);
+  --tw-prose-captions: var(--on-surface-variant);
+  --tw-prose-kbd: var(--on-surface);
+  --tw-prose-code: var(--on-surface);
+  --tw-prose-pre-code: var(--on-surface);
+  --tw-prose-pre-bg: var(--code-bg);
+  --tw-prose-th-borders: var(--surface-high);
+  --tw-prose-td-borders: var(--surface-container);
+  max-width: 70ch;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.prose :where(h1, h2, h3, h4):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-family: var(--font-serif);
+  font-weight: 600;
+}
+
+.prose :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  text-decoration: none;
+}
+
+.prose :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)):hover {
+  text-decoration: underline;
+}
+
+.prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background-color: var(--surface-container);
+  padding: 2px 6px;
+  border-radius: 0.25rem;
+  font-weight: 400;
+}
+
+.prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::before,
+.prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::after {
+  content: none;
+}
+
+.prose :where(pre):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  background-color: var(--code-bg);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.prose :where(pre code):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  background-color: transparent;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+.prose :where(blockquote):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-style: italic;
+  border-left-width: 2px;
+  border-left-color: color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+.prose :where(table th):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-variant);
+}
+
+.prose :where(table td):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* No table borders — use background shifts */
+.prose :where(table):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  border-collapse: separate;
+}
+
+.prose :where(thead th):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  border-bottom: none;
+  background-color: var(--surface-low);
+  padding: 0.75rem 1rem;
+}
+
+.prose :where(tbody td):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  border-bottom: none;
+  padding: 0.75rem 1rem;
+}
+
+.prose :where(tbody tr:nth-child(even)):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  background-color: var(--surface-low);
+}
+
+.prose :where(hr):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  border: none;
+  height: 1px;
+  background-color: var(--surface-high);
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+/* ============================================
+   Shiki Dual Theme
+   ============================================ */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: transparent !important;
+}
+
+html.light .astro-code,
+html.light .astro-code span {
+  color: var(--shiki-light) !important;
+  background-color: transparent !important;
+}
+
+.astro-code {
+  background-color: var(--code-bg) !important;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Line numbers */
+.astro-code {
+  counter-reset: line;
+}
+
+.astro-code .line {
+  counter-increment: line;
+}
+
+.astro-code .line::before {
+  content: counter(line);
+  display: inline-block;
+  width: 2rem;
+  margin-right: 1rem;
+  text-align: right;
+  color: var(--on-surface-variant);
+  opacity: 0.4;
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  padding: 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background-color: var(--bg);
+  color: var(--primary);
+  z-index: 9999;
+  font-size: 0.875rem;
+}

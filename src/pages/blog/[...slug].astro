@@ -1,0 +1,96 @@
+---
+import Base from '../../layouts/Base.astro';
+import ReadingProgress from '../../components/ReadingProgress.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, remarkPluginFrontmatter } = await render(post);
+
+const formattedDate = post.data.date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+// Compute reading time from rendered content body
+const body = post.body ?? '';
+const wordCount = body.split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+---
+
+<Base
+  title={post.data.title}
+  description={post.data.description}
+  ogType="article"
+  article={{
+    publishedTime: post.data.date.toISOString(),
+    tags: post.data.tags,
+  }}
+>
+  <ReadingProgress />
+
+  <article class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+    <!-- Article grid: rail | content | marginalia -->
+    <div class="lg:grid lg:grid-cols-[80px_minmax(0,70ch)_1fr] lg:gap-8">
+      <!-- Left rail spacer (progress bar is fixed positioned) -->
+      <div class="hidden lg:block" aria-hidden="true"></div>
+
+      <!-- Main content -->
+      <div>
+        <!-- Header -->
+        <header class="mb-12">
+          <div class="flex items-center gap-2 text-sm text-on-surface-variant mb-4">
+            {post.data.tags[0] && (
+              <span class="inline-block px-3 py-0.5 rounded-full bg-tag-bg text-tag-text text-xs uppercase tracking-wider">
+                {post.data.tags[0]}
+              </span>
+            )}
+            <span class="text-on-surface-variant/40">&middot;</span>
+            <time datetime={post.data.date.toISOString()}>{formattedDate}</time>
+            <span class="text-on-surface-variant/40">&middot;</span>
+            <span>{readingTime} min read</span>
+          </div>
+
+          <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-on-surface leading-tight mb-4">
+            {post.data.title}
+          </h1>
+
+          <p class="text-on-surface-variant text-lg">
+            {post.data.description}
+          </p>
+        </header>
+
+        <!-- Article body -->
+        <div class="prose prose-lg">
+          <Content />
+        </div>
+
+        <!-- Footer: tags + nav -->
+        <footer class="mt-16 pt-8 border-t border-[var(--ghost-border)]">
+          <div class="flex flex-wrap gap-2 mb-8">
+            {post.data.tags.map((tag) => (
+              <span class="inline-block px-3 py-1 rounded-full bg-tag-bg text-tag-text text-xs uppercase tracking-wider">
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <a href="/blog" class="text-primary text-sm hover:underline">
+            &larr; Back to all articles
+          </a>
+        </footer>
+      </div>
+
+      <!-- Right marginalia spacer (for future TOC/notes) -->
+      <div class="hidden lg:block" aria-hidden="true"></div>
+    </div>
+  </article>
+</Base>

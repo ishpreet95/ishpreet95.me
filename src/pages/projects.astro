@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+
+const projects = [
+  {
+    name: 'cctrue',
+    description: 'A correct Claude Code usage tracker. Built from the research in "Understanding Claude Code Token Metrics."',
+    github: '#',
+    article: '/blog/understanding-claude-code-token-metrics',
+    status: 'Coming soon',
+  },
+];
+---
+
+<Base title="Projects" description="Tools and projects that come out of the research.">
+  <section class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+    <h1 class="font-serif text-3xl sm:text-4xl text-on-surface mb-4">
+      Projects
+    </h1>
+
+    <p class="text-on-surface-variant text-lg mb-12 max-w-[50ch]">
+      Tools and projects that come out of the research.
+    </p>
+
+    <div class="max-w-[680px] flex flex-col gap-6">
+      {projects.map((project) => (
+        <div class="bg-surface-container rounded-lg p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <h2 class="font-serif text-xl text-on-surface">
+              {project.name}
+            </h2>
+            {project.status === 'Coming soon' && (
+              <span class="text-xs uppercase tracking-wider text-on-surface-variant bg-surface-bright px-2 py-0.5 rounded-full">
+                {project.status}
+              </span>
+            )}
+          </div>
+
+          <p class="text-on-surface-variant text-base mb-4">
+            {project.description}
+          </p>
+
+          <div class="flex items-center gap-4 text-sm">
+            {project.github !== '#' && (
+              <a href={project.github} class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                GitHub &rarr;
+              </a>
+            )}
+            {project.article && (
+              <a href={project.article} class="text-primary hover:underline">
+                Read the research &rarr;
+              </a>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>
