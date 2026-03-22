@@ -186,11 +186,13 @@ print(f"Cache write: {sum(u.get('cache_creation_input_tokens',0) for u in by_req
 
 **Caveat:** [Issue #22686](https://github.com/anthropics/claude-code/issues/22686) reports that on some systems, the final streaming chunk (with `stop_reason` set) is never written to JSONL — only intermediate chunks with `output_tokens: 1` are saved. In my data (Claude Code v2.1.79), final chunks are present in 98.6% of multi-chunk requests, so the parser works correctly. If your data is affected, the fallback (keeping the last entry by line order) still produces better results than first-seen or no dedup, but output token counts may be understated.
 
-> **Disclosure:** I'm building a tool in this space ([ccmetrics](https://github.com/ishpreet95/ccmetrics)). The analysis above was completed independently before development started, but you should know I have skin in the game.
+> **Disclosure:** I built [ccmetrics](https://github.com/ishpreet95/ccmetrics) based on this research. The analysis was completed independently before development started, but you should know I have skin in the game.
 
-## What's next
+## ccmetrics — the tool that gets this right
 
-I'm working on a tool that gets this right — correct deduplication, disaggregated metrics, cache-aware cost estimates, published methodology. More on that soon.
+This research became [**ccmetrics**](https://github.com/ishpreet95/ccmetrics), now published on [crates.io](https://crates.io/crates/ccmetrics). Install with `cargo install ccmetrics`.
+
+It implements everything described above — correct `requestId` dedup with last-chunk-wins, 5-type token split, per-model pricing with all modifiers (fast mode, data residency, long context), main vs subagent separation, and cache-aware cost estimates. The methodology is built into the tool: run `ccmetrics explain` to see how your data is processed step by step.
 
 The JSONL format will keep evolving. Any tool built today will face the same drift the current tools did. The only defense is publishing your methodology so users can verify the numbers themselves.
 

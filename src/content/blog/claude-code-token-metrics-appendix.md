@@ -396,6 +396,7 @@ Problems: overcounts ~1.6x (uuid is per-chunk), misses subagents (no recursive g
 - [#16856: Excessive token usage 4x faster](https://github.com/anthropics/claude-code/issues/16856)
 
 ### Tools
+- [ccmetrics](https://github.com/ishpreet95/ccmetrics) — Rust, correct dedup + 5-type split + per-model pricing ([crates.io](https://crates.io/crates/ccmetrics))
 - [ccusage](https://github.com/ryoppippi/ccusage) — 11.8k stars, TypeScript
 - [claudelytics](https://github.com/nwiizo/claudelytics) — 70 stars, Rust
 - [ccost](https://github.com/carlosarraes/ccost) — 6 stars, Rust
