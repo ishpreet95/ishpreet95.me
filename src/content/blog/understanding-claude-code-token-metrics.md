@@ -76,7 +76,7 @@ ccusage also doesn't distinguish 5-minute from 1-hour cache writes ([Issue #899]
 
 ### claudelytics (70 stars, Rust)
 
-Zero deduplication. The `UsageRecord` struct doesn't parse `uuid`, `requestId`, or `message.id` at all. Every JSONL line that has usage data gets counted. It sums all four token types — `input + output + cache_read + cache_creation` — into one number. No streaming chunk handling.
+claudelytics prioritizes simplicity and broad scanning over granular accounting — it doesn't deduplicate streaming chunks. The `UsageRecord` struct doesn't parse `uuid`, `requestId`, or `message.id` at all. Every JSONL line that has usage data gets counted. It sums all four token types — `input + output + cache_read + cache_creation` — into one number. No streaming chunk handling.
 
 This fully explains the 8.2 billion figure: no dedup + cache_read inclusion + recursive subagent scanning.
 
@@ -86,9 +86,13 @@ Verified from `stats-cache.json`: `/stats` shows `input_tokens + output_tokens` 
 
 This is actually the **least misleading** metric — it measures productive tokens without cache overhead. It just never explains what it includes, shows no breakdown, and its comparisons ("428x The Little Prince") treat the number as raw volume.
 
-### ccost (6 stars, Rust, abandoned)
+### ccost (6 stars, Rust, inactive)
 
-The only tool that independently documented `requestId`-priority deduplication — 9 months before anyone else. But it hasn't been updated since June 2025, doesn't scan subagent directories, and doesn't distinguish cache write tiers. 6 stars, 1 open issue, no community. Correctness without visibility.
+The only tool that independently documented `requestId`-priority deduplication — 9 months before anyone else. It had an intense initial development sprint in June 2025 (82 commits in 13 days) but has had no activity since, doesn't scan subagent directories, and doesn't distinguish cache write tiers. 6 stars, 1 open issue. Correctness without visibility.
+
+### Other notable tools
+
+The landscape is broader than the tools analyzed above. **tokscale** ([junhoyeo/tokscale](https://github.com/junhoyeo/tokscale), 1.3k stars) tracks usage across multiple platforms including Claude Code, Codex, Gemini, and Cursor with a Rust-powered TUI. **par_cc_usage** ([paulrobello/par_cc_usage](https://github.com/paulrobello/par_cc_usage), 84 stars) is a Python tool that correctly deduplicates by request ID and adds real-time monitoring with burn rate tracking. Neither tool currently distinguishes 5-minute from 1-hour cache write tiers, but both represent meaningful efforts in this space.
 
 ## The cost illusion
 
@@ -132,6 +136,14 @@ If you use Claude Code and care about understanding your usage:
 
 **Most of your tokens go to subagents.** If you use the Agent tool, expect 50-66% of your usage to be automated background work. This is real API consumption but not your direct interaction.
 
+## The server-side alternative
+
+If you're on an organizational API billing plan, Anthropic provides a [Usage and Cost API](https://docs.anthropic.com/en/docs/build-with-claude/track-token-usage) that gives authoritative server-side token counts without any JSONL parsing. It reports aggregate usage at hourly/daily granularity, grouped by model, workspace, and API key.
+
+For organizational cost reconciliation, this is the canonical source — it's what Anthropic uses for billing. However, it doesn't provide per-request or per-session granularity, can't distinguish main thread from subagent usage, requires Admin API keys (unavailable to individual Claude Max subscribers), and has a ~5 minute data delay.
+
+JSONL parsing remains necessary for per-request analysis, subagent vs. main-thread attribution, offline/instant metrics, and anyone on the Max plan without API billing. The two approaches are complementary, not competing.
+
 ## For tool builders
 
 If you're building or maintaining a Claude Code usage tool, here's what correct parsing requires:
@@ -155,7 +167,7 @@ for f in files:
         for line in fh:
             try:
                 d = json.loads(line)
-            except:
+            except (json.JSONDecodeError, ValueError):
                 continue
             if d.get('type') != 'assistant':
                 continue
@@ -172,6 +184,10 @@ print(f"Cache read: {sum(u.get('cache_read_input_tokens',0) for u in by_request.
 print(f"Cache write: {sum(u.get('cache_creation_input_tokens',0) for u in by_request.values()):,}")
 ```
 
+**Caveat:** [Issue #22686](https://github.com/anthropics/claude-code/issues/22686) reports that on some systems, the final streaming chunk (with `stop_reason` set) is never written to JSONL — only intermediate chunks with `output_tokens: 1` are saved. In my data (Claude Code v2.1.79), final chunks are present in 98.6% of multi-chunk requests, so the parser works correctly. If your data is affected, the fallback (keeping the last entry by line order) still produces better results than first-seen or no dedup, but output token counts may be understated.
+
+> **Disclosure:** I'm building a tool in this space ([ccmetrics](https://github.com/ishpreet95/ccmetrics)). The analysis above was completed independently before development started, but you should know I have skin in the game.
+
 ## What's next
 
 I'm working on a tool that gets this right — correct deduplication, disaggregated metrics, cache-aware cost estimates, published methodology. More on that soon.
@@ -180,6 +196,8 @@ The JSONL format will keep evolving. Any tool built today will face the same dri
 
 ---
 
-*All analysis performed on local `~/.claude/` data from a single user (77 active days, 298 sessions, 10 projects). Tool versions: ccusage v18.0.10, claudelytics v0.5.2, ccost v0.2.0. Pricing verified against [Anthropic's published rates](https://platform.claude.com/docs/en/about-claude/pricing) on 2026-03-22. Every source-code claim was verified by reading the actual code, not documentation.*
+## Methodology
 
-*Full technical appendix with data model documentation, verification results, and extended source code analysis available [here](/blog/claude-code-token-metrics-appendix).*
+> **Scope:** All analysis performed on local `~/.claude/` data from a single user over 77 active days (Jan 5 – Mar 22, 2026), 298 sessions, 10 projects. These ratios (95.8% cache, 87% subagent files, 2.85x streaming inflation) reflect one power user's workflow with aggressive subagent usage. **Your numbers will differ** — a user running simple Q&A sessions without subagents would see much lower cache ratios and minimal streaming inflation. The mechanisms are universal; the ratios are personal.
+>
+> **Verification:** Tool versions: ccusage v18.0.10, claudelytics v0.5.2, ccost v0.2.0. Pricing verified against [Anthropic's published rates](https://platform.claude.com/docs/en/about-claude/pricing) on 2026-03-22. Every source-code claim was verified by reading the actual code, not documentation. Full technical appendix available [here](/blog/claude-code-token-metrics-appendix).
