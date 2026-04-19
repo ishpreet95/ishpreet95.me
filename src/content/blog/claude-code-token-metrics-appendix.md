@@ -101,8 +101,8 @@ Line 2: text block       → uuid: "bbb", requestId: "req_123", output_tokens: 1
 Line 3: tool_use block   → uuid: "ccc", requestId: "req_123", output_tokens: 269, stop_reason: "tool_use"
 ```
 
-- `uuid` is unique per line — deduplicating by uuid treats each chunk as a separate response
-- `requestId` is shared — deduplicating by requestId correctly groups them as one response
+- `uuid` is unique per line - deduplicating by uuid treats each chunk as a separate response
+- `requestId` is shared - deduplicating by requestId correctly groups them as one response
 - Input tokens and cache tokens are consistent across chunks
 - **Output tokens differ:** intermediate chunks have placeholder values (~1-11), only the final chunk (with `stop_reason != null`) has the real total
 - `jq unique_by` keeps the **first** occurrence, so it gets the placeholder output_tokens
@@ -130,7 +130,7 @@ Line 3: tool_use block   → uuid: "ccc", requestId: "req_123", output_tokens: 2
 
 ### ccusage v18.0.10 (TypeScript, 11.8k stars)
 
-**Dedup implementation** — `apps/ccusage/src/data-loader.ts`, line 530:
+**Dedup implementation** - `apps/ccusage/src/data-loader.ts`, line 530:
 
 ```typescript
 export function createUniqueHash(data: UsageData): string | null {
@@ -159,7 +159,7 @@ A `Set<string>` called `processedHashes` tracks seen combinations. Entries with 
 
 ### claudelytics v0.5.2 (Rust, 70 stars)
 
-**Token aggregation** — `src/models.rs`, line 57:
+**Token aggregation** - `src/models.rs`, line 57:
 
 ```rust
 pub fn total_tokens(&self) -> u64 {
@@ -189,11 +189,11 @@ Total tokens = inputTokens + outputTokens
 |---|---|---|
 | inputTokens | 1,082,937 | Yes |
 | outputTokens | 8,279,640 | Yes |
-| **Sum** | **9,362,577 ≈ 9.4M** | **Yes — exact match** |
+| **Sum** | **9,362,577 ≈ 9.4M** | **Yes - exact match** |
 | cacheReadInputTokens | 5,046,513,967 | No |
 | cacheCreationInputTokens | 234,307,960 | No |
 
-`stats-cache.json` also contains `dailyModelTokens` with per-day, per-model breakdowns. Summing all `tokensByModel` entries = 9,362,577 — confirming the formula.
+`stats-cache.json` also contains `dailyModelTokens` with per-day, per-model breakdowns. Summing all `tokensByModel` entries = 9,362,577 - confirming the formula.
 
 ### ccost v0.2.0 (Rust, 6 stars, abandoned)
 
@@ -201,7 +201,7 @@ Total tokens = inputTokens + outputTokens
 |---|---|
 | Dedup key: `message.id + requestId` | Correct (hash-prefixed: "req:", "session:") |
 | Fallback: `message.id + sessionId` | Yes (when requestId absent) |
-| Which chunk kept | Unknown — predates thinking blocks |
+| Which chunk kept | Unknown - predates thinking blocks |
 | 5m vs 1h cache writes | Not distinguished |
 | Subagent scanning | No |
 | isSidechain filtering | No |
@@ -215,12 +215,12 @@ All strategies applied to the same dataset (1,337 files, 87,684 raw assistant li
 
 | Strategy | Unique entries | Input tokens | Output tokens | In+Out |
 |---|---|---|---|---|
-| No dedup (raw lines) | 87,684 | — | — | massively inflated |
+| No dedup (raw lines) | 87,684 | - | - | massively inflated |
 | `uuid` (jq script) | 34,806 | 564,560 | 5,656,160 | 6,220,720 |
 | **`requestId` (correct)** | **17,698** | **175,022** | **3,731,324** | **3,906,346** |
 | `message.id` | 17,737 | 175,022 | 3,731,324 | 3,906,346 |
 
-Note: `requestId` and `message.id` produce identical results — they are 1:1 across all sampled data.
+Note: `requestId` and `message.id` produce identical results - they are 1:1 across all sampled data.
 
 ### With subagent/sidechain separation (requestId dedup)
 
@@ -396,10 +396,10 @@ Problems: overcounts ~1.6x (uuid is per-chunk), misses subagents (no recursive g
 - [#16856: Excessive token usage 4x faster](https://github.com/anthropics/claude-code/issues/16856)
 
 ### Tools
-- [ccmetrics](https://github.com/ishpreet95/ccmetrics) — Rust, correct dedup + 5-type split + per-model pricing ([crates.io](https://crates.io/crates/ccmetrics))
-- [ccusage](https://github.com/ryoppippi/ccusage) — 11.8k stars, TypeScript
-- [claudelytics](https://github.com/nwiizo/claudelytics) — 70 stars, Rust
-- [ccost](https://github.com/carlosarraes/ccost) — 6 stars, Rust
+- [ccmetrics](https://github.com/ishpreet95/ccmetrics) - Rust, correct dedup + 5-type split + per-model pricing ([crates.io](https://crates.io/crates/ccmetrics))
+- [ccusage](https://github.com/ryoppippi/ccusage) - 11.8k stars, TypeScript
+- [claudelytics](https://github.com/nwiizo/claudelytics) - 70 stars, Rust
+- [ccost](https://github.com/carlosarraes/ccost) - 6 stars, Rust
 
 ### Official
 - [Anthropic Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
