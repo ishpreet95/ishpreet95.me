@@ -23,7 +23,7 @@ const {
 const siteTitle = 'Ishpreet';
 const fullTitle = title === siteTitle ? title : `${title} — ${siteTitle}`;
 const canonical = canonicalUrl || Astro.url.href;
-const ogImg = ogImage ? new URL(ogImage, Astro.site).href : undefined;
+const ogImg = new URL(ogImage || '/logo-3d.png', Astro.site).href;
 ---
 
 <title>{fullTitle}</title>
@@ -36,7 +36,7 @@ const ogImg = ogImage ? new URL(ogImage, Astro.site).href : undefined;
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:site_name" content={siteTitle} />
-{ogImg && <meta property="og:image" content={ogImg} />}
+<meta property="og:image" content={ogImg} />
 
 {article && (
   <>
@@ -48,10 +48,10 @@ const ogImg = ogImage ? new URL(ogImage, Astro.site).href : undefined;
 )}
 
 <!-- Twitter -->
-<meta name="twitter:card" content={ogImg ? "summary_large_image" : "summary"} />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
-{ogImg && <meta name="twitter:image" content={ogImg} />}
+<meta name="twitter:image" content={ogImg} />
 
 <!-- RSS -->
 <link rel="alternate" type="application/rss+xml" title={siteTitle} href={new URL('/rss.xml', Astro.site).href} />

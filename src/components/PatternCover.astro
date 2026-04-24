@@ -1,0 +1,29 @@
+---
+interface Props {
+  seed: string;
+  height?: number;
+  label?: string;
+}
+
+const { seed, height = 200, label } = Astro.props;
+---
+
+<div
+  class="relative overflow-hidden rounded-xl"
+  style={`height: ${height}px; background: var(--bg); box-shadow: inset 0 0 0 1px var(--ghost-border);`}
+>
+  <canvas
+    data-ascii-pattern
+    data-ascii-seed={seed}
+    class="absolute inset-0 w-full h-full"
+    style="color: var(--primary);"
+    aria-hidden="true"
+  ></canvas>
+  {label && (
+    <div class="absolute left-3.5 bottom-3 font-mono text-[10px] tracking-[0.14em] uppercase text-on-surface-variant rounded px-2 py-0.5" style="background: var(--surface-low);">
+      {label}
+    </div>
+  )}
+</div>
+
+<script src="../scripts/ascii-pattern.ts"></script>

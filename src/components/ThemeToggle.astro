@@ -18,6 +18,8 @@
 </button>
 
 <script>
+  let _themeClickHandler: (() => void) | null = null;
+
   function initTheme() {
     const toggle = document.getElementById('theme-toggle');
     const sunIcon = document.getElementById('icon-sun');
@@ -26,13 +28,16 @@
 
     function updateIcons() {
       const isLight = document.documentElement.classList.contains('light');
-      sunIcon.classList.toggle('hidden', isLight);
-      moonIcon.classList.toggle('hidden', !isLight);
+      sunIcon!.classList.toggle('hidden', isLight);
+      moonIcon!.classList.toggle('hidden', !isLight);
     }
 
     updateIcons();
 
-    toggle.addEventListener('click', () => {
+    // Remove previous handler before adding a new one
+    if (_themeClickHandler) toggle.removeEventListener('click', _themeClickHandler);
+
+    _themeClickHandler = () => {
       document.documentElement.classList.add('transitioning');
       document.documentElement.classList.toggle('light');
 
@@ -43,7 +48,9 @@
       setTimeout(() => {
         document.documentElement.classList.remove('transitioning');
       }, 150);
-    });
+    };
+
+    toggle.addEventListener('click', _themeClickHandler);
   }
 
   initTheme();

@@ -3,27 +3,96 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base title="About" description="About Ishpreet — founding engineer, writer, and builder.">
-  <section class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-    <h1 class="font-serif text-3xl sm:text-4xl text-on-surface mb-12">
-      About
-    </h1>
 
-    <div class="prose prose-lg max-w-[70ch]">
-      <p>
-        I'm Ishpreet — a founding engineer at an early-stage startup. I joined as a frontend intern and converted to the founding team; now I work across the stack.
-      </p>
+  <section class="max-w-[1200px] mx-auto px-6 lg:px-24 pt-10 pb-20">
+    <!-- Back link -->
+    <a href="/" class="text-[13px] text-on-surface-variant inline-flex items-center gap-1.5 mb-10 hover:text-on-surface transition-colors">
+      &larr; Home
+    </a>
 
-      <p>
-        I don't just use tools — I open the source, read the data, and figure out what's actually happening. This blog is where I publish the findings. Technical research, deep dives into developer tooling, and investigations into the systems we use every day. The goal is always the same: understand how things actually work, not how the marketing says they work.
-      </p>
+    <!-- ASCII name hero -->
+    <div
+      class="rounded-2xl overflow-hidden relative mb-16"
+      style="background: var(--bg); border: 1px solid var(--ghost-border); height: 200px;"
+    >
+      <canvas data-ascii-name="ishpreet" class="w-full h-full" aria-hidden="true" />
+    </div>
+    <script src="../scripts/ascii-name.ts" />
 
-      <p>
-        When an investigation turns up something worth fixing, I build the fix. <a href="https://github.com/ishpreet95/ccmetrics">ccmetrics</a>, a Rust CLI for accurate Claude Code token accounting, is the most recent example. The rest lives on the <a href="/projects">projects page</a>.
-      </p>
+    <!-- Bio -->
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-16 items-start">
+      <div>
+        <p class="font-serif italic text-[22px] text-on-surface leading-[1.45] max-w-[48ch] mb-12" style="text-wrap: balance;">
+          A developer who can't leave well enough alone. Writing about what happens when you open the source and count for yourself.
+        </p>
 
-      <p>
-        If you want to follow along, the <a href="/rss.xml">RSS feed</a> is the best way. No newsletter signup forms, no tracking pixels — just content.
-      </p>
+        <div class="prose prose-lg max-w-[62ch]">
+          <p>
+            I'm Ishpreet — a founding engineer at an early-stage startup. I joined as a frontend intern and converted to the founding team; now I work across the stack.
+          </p>
+
+          <p>
+            I don't just use tools — I open the source, read the data, and figure out what's actually happening. This blog is where I publish the findings. Technical research, deep dives into developer tooling, and investigations into the systems we use every day. The goal is always the same: understand how things actually work, not how the marketing says they work.
+          </p>
+
+          <p>
+            When an investigation turns up something worth fixing, I build the fix. <a href="https://github.com/ishpreet95/ccmetrics" target="_blank" rel="noopener noreferrer">ccmetrics</a>, a Rust CLI for accurate Claude Code token accounting, is the most recent example. The rest lives on the <a href="/projects">projects page</a>.
+          </p>
+
+          <p>
+            If you want to follow along, the <a href="/rss.xml">RSS feed</a> is the best way. No newsletter signup forms, no tracking pixels — just content.
+          </p>
+        </div>
+      </div>
+
+      <!-- Sidebar — links & colophon -->
+      <aside class="lg:sticky lg:top-10">
+        <div class="bg-surface-low rounded-xl p-7">
+          <div class="eyebrow mb-5">Elsewhere</div>
+          <ul class="list-none p-0 m-0 grid gap-3.5 text-[14px]">
+            <li>
+              <a href="https://github.com/ishpreet95" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 text-on-surface-variant hover:text-on-surface transition-colors">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 1.27a11 11 0 0 0-3.48 21.44c.55.1.75-.24.75-.53v-1.85c-3.06.66-3.71-1.48-3.71-1.48-.5-1.27-1.22-1.6-1.22-1.6-1-.68.08-.67.08-.67 1.1.08 1.68 1.13 1.68 1.13.98 1.68 2.57 1.2 3.2.91.1-.7.38-1.2.7-1.47-2.44-.28-5-1.22-5-5.43 0-1.2.43-2.18 1.13-2.94-.11-.28-.49-1.4.1-2.92 0 0 .92-.3 3.03 1.12a10.5 10.5 0 0 1 5.5 0c2.1-1.42 3.02-1.12 3.02-1.12.6 1.52.22 2.64.1 2.92.71.76 1.13 1.74 1.13 2.94 0 4.22-2.57 5.14-5.02 5.42.4.34.75 1 .75 2.03v3.01c0 .3.2.64.76.53A11 11 0 0 0 12 1.27z"/></svg>
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a href="https://x.com/IshpreetV95" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 text-on-surface-variant hover:text-on-surface transition-colors">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.53 3h3.08l-6.73 7.69L22 21h-6.2l-4.86-6.36L5.28 21H2.2l7.2-8.22L2 3h6.36l4.39 5.81L17.53 3zm-1.08 16.13h1.7L7.63 4.78H5.8l10.65 14.35z"/></svg>
+                X / Twitter
+              </a>
+            </li>
+            <li>
+              <a href="https://www.linkedin.com/in/ishpreet-vashist/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 text-on-surface-variant hover:text-on-surface transition-colors">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1-.02-5zM3 9h4v12H3zM9 9h3.8v1.7h.06c.53-1 1.82-2.05 3.75-2.05 4 0 4.74 2.64 4.74 6.08V21h-4v-5.6c0-1.34-.02-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V21H9z"/></svg>
+                LinkedIn
+              </a>
+            </li>
+            <li>
+              <a href="mailto:ishpreetsingh95@gmail.com" class="inline-flex items-center gap-2.5 text-on-surface-variant hover:text-on-surface transition-colors">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                Email
+              </a>
+            </li>
+            <li>
+              <a href="/rss.xml" class="inline-flex items-center gap-2.5 text-on-surface-variant hover:text-on-surface transition-colors">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5" fill="currentColor"/></svg>
+                RSS feed
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-6 bg-surface-low rounded-xl p-7">
+          <div class="eyebrow mb-5">Colophon</div>
+          <ul class="list-none p-0 m-0 grid gap-2.5 text-[13px] text-on-surface-variant font-mono">
+            <li>Set in Newsreader, Inter &amp; Geist Mono</li>
+            <li>Built with Astro</li>
+            <li>Hosted on Vercel</li>
+            <li>Covers generated with Perlin noise</li>
+          </ul>
+        </div>
+      </aside>
     </div>
   </section>
 </Base>
