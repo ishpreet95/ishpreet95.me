@@ -1,7 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
-import ArticleCard from '../components/ArticleCard.astro';
+import PatternCover from '../components/PatternCover.astro';
 import { getCollection } from 'astro:content';
+import { readingTime } from '../lib/reading-time';
 
 const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -9,96 +10,133 @@ const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
 const featured = allPosts[0];
 const archive = allPosts.slice(1);
 
-function readingTime(post: typeof allPosts[number]): number {
-  const words = (post.body ?? '').split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.ceil(words / 200));
-}
+const issueNum = String(allPosts.length).padStart(2, '0');
+const now = new Date();
+const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const dateline = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
 const featuredDate = featured?.data.date.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
 });
+
+// Extract h2 headings from featured article for "What's Inside"
+const featuredHeadings = (featured?.body ?? '')
+  .match(/^## (.+)$/gm)
+  ?.map((h: string) => h.replace(/^## /, ''))
+  .slice(0, 6) ?? [];
+
+
 ---
 
 <Base title="Ishpreet" description="Technical research, deep dives, and observations from the intersection of code and craft.">
 
-  <!-- Identity -->
-  <section class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-8">
-    <p class="text-lg text-on-surface-variant font-serif italic">
-      A developer who can't leave well enough alone.
-    </p>
+  <!-- Identity strip — dateline -->
+  <section class="max-w-[1200px] mx-auto px-6 lg:px-24 pt-14">
+    <div class="font-mono text-[11px] tracking-[0.14em] text-on-surface-variant uppercase flex items-center gap-3.5">
+      <span>Vol. 1 &middot; Issue {issueNum}</span>
+      <span class="inline-block w-6 h-px" style="background: var(--ghost-border);" />
+      <span>{dateline}</span>
+    </div>
   </section>
 
-  <!-- Featured Investigation -->
+  <!-- Featured investigation — magazine cover -->
   {featured && (
-    <section class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
-      <p class="text-xs uppercase tracking-wider text-on-surface-variant mb-6">
-        Current Research
-      </p>
+    <section class="max-w-[1200px] mx-auto px-6 lg:px-24 pt-14 pb-20">
+      <!-- Generative cover art -->
+      <div class="mb-11">
+        <PatternCover seed={featured.id} height={220} label={`Cover · Issue ${issueNum}`} />
+      </div>
 
-      <a href={`/blog/${featured.id}`} class="group block max-w-[780px]">
-        <div class="flex items-center gap-2 text-sm text-on-surface-variant mb-4">
-          {featured.data.tags[0] && (
-            <span class="inline-block px-3 py-0.5 rounded-full bg-tag-bg text-tag-text text-xs uppercase tracking-wider">
-              {featured.data.tags[0]}
-            </span>
-          )}
-          <span class="text-on-surface-variant/40">&middot;</span>
-          <time datetime={featured.data.date.toISOString()}>{featuredDate}</time>
-          <span class="text-on-surface-variant/40">&middot;</span>
-          <span>{readingTime(featured)} min read</span>
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-16 items-start">
+        <!-- Left: article info -->
+        <div>
+          <div class="eyebrow mb-7">Current Research</div>
+          <div class="flex items-center gap-2.5 mb-6 flex-wrap">
+            {featured.data.tags[0] && <span class="tag">{featured.data.tags[0]}</span>}
+            {featured.data.tags[1] && <span class="tag ghost">{featured.data.tags[1]}</span>}
+            <span class="text-on-surface-variant text-[13px]">{featuredDate} &middot; {readingTime(featured?.body ?? '')} min read</span>
+          </div>
+          <h1 class="font-serif font-medium text-4xl sm:text-5xl lg:text-[64px] leading-[1.05] tracking-tight text-on-surface mb-7 max-w-[14ch]" style="text-wrap: balance;">
+            {featured.data.title}
+          </h1>
+          <p class="text-[19px] leading-relaxed text-on-surface-variant max-w-[52ch] mb-9">
+            {featured.data.description}
+          </p>
+          <a
+            href={`/blog/${featured.id}`}
+            class="inline-flex items-center gap-2.5 text-primary text-[15px] font-medium hover:opacity-80 transition-opacity"
+            style="border-bottom: 1px solid currentColor; padding-bottom: 2px;"
+          >
+            Read the investigation
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+          </a>
         </div>
 
-        <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-on-surface leading-tight group-hover:text-primary transition-colors duration-150 mb-6">
-          {featured.data.title}
-        </h1>
-
-        <p class="text-lg text-on-surface-variant max-w-[60ch] mb-6">
-          {featured.data.description}
-        </p>
-
-        <span class="text-primary text-sm group-hover:underline">
-          Read the investigation &rarr;
-        </span>
-      </a>
+        <!-- Right: What's Inside marginalia -->
+        {featuredHeadings.length >= 2 && (
+          <div class="bg-surface-low rounded-xl p-7 mt-0 lg:mt-15">
+            <div class="eyebrow mb-5">What's Inside</div>
+            <ol class="list-none p-0 m-0 grid gap-3.5">
+              {featuredHeadings.map((h: string, i: number) => (
+                <li class="flex gap-3.5 text-sm text-on-surface items-baseline">
+                  <span class="font-mono text-[11px] text-on-surface-variant min-w-[18px]">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span>{h}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
     </section>
   )}
 
   {!featured && (
-    <section class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
+    <section class="max-w-[1200px] mx-auto px-6 lg:px-24 pb-16 pt-14">
       <p class="text-on-surface-variant">
         First investigation coming soon.
       </p>
     </section>
   )}
 
-  <!-- Archive -->
+  <!-- Archive preview -->
   {archive.length > 0 && (
-    <section class="bg-surface-low">
-      <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <h2 class="text-xs uppercase tracking-wider text-on-surface-variant mb-10">
-          Archive
-        </h2>
-
-        <div class="max-w-[680px] flex flex-col gap-10">
-          {archive.map((post) => (
-            <ArticleCard
-              title={post.data.title}
-              description={post.data.description}
-              date={post.data.date}
-              tags={post.data.tags}
-              slug={post.id}
-              readingTime={readingTime(post)}
-            />
-          ))}
-        </div>
-
-        <div class="mt-12">
-          <a href="/blog" class="text-primary text-sm hover:underline">
-            View all articles &rarr;
-          </a>
-        </div>
+    <section class="max-w-[1200px] mx-auto px-6 lg:px-24 pt-20 pb-10">
+      <div class="flex items-baseline justify-between mb-8">
+        <div class="eyebrow">Archive</div>
+        <a href="/blog" class="text-primary text-[13px] inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+          All writing
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+        </a>
+      </div>
+      <div class="grid gap-1">
+        {archive.map((post, i) => {
+          const num = String(allPosts.length - 1 - i).padStart(3, '0');
+          const shortDate = post.data.date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+          return (
+            <a
+              href={`/blog/${post.id}`}
+              class="group grid grid-cols-[48px_80px_64px_1fr_80px] items-center gap-6 py-[18px] hover:opacity-80 transition-opacity"
+              style="border-top: 1px solid var(--ghost-border);"
+            >
+              <span class="font-mono text-xs text-on-surface-variant">{num}</span>
+              <span class="font-mono text-xs text-on-surface-variant">{shortDate}</span>
+              <div class="h-11 w-16 hidden sm:block">
+                <PatternCover seed={post.id} height={44} />
+              </div>
+              <div class="flex items-baseline gap-3.5 min-w-0">
+                <span class="font-serif text-[22px] text-on-surface tracking-tight group-hover:text-primary transition-colors truncate">
+                  {post.data.title}
+                </span>
+                {post.data.tags[0] && <span class="tag ghost hidden md:inline-flex">{post.data.tags[0]}</span>}
+              </div>
+              <span class="font-mono text-xs text-on-surface-variant text-right">{readingTime(post.body ?? '')} min</span>
+            </a>
+          );
+        })}
       </div>
     </section>
   )}

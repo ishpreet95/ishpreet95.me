@@ -9,28 +9,34 @@ interface Props {
   description?: string;
   ogImage?: string;
   ogType?: string;
+  accentHue?: number;
   article?: {
     publishedTime: string;
     tags: string[];
   };
 }
 
-const { title, description, ogImage, ogType, article } = Astro.props;
+const { title, description, ogImage, ogType, article, accentHue } = Astro.props;
+const hue = accentHue ?? 155; // default sage
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" style={accentHue !== undefined ? `--accent-hue: ${hue};` : undefined}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content={`oklch(0.20 0.02 ${hue})`} media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content={`oklch(0.97 0.01 ${hue})`} media="(prefers-color-scheme: light)" />
     <SEO title={title} description={description} ogImage={ogImage} ogType={ogType} article={article} />
     <!-- Prevent flash: set theme before render -->
     <script is:inline>
       (function() {
-        const theme = localStorage.getItem('theme') ||
-          (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        var stored = localStorage.getItem('theme');
+        var theme = (stored === 'light' || stored === 'dark') ? stored
+          : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
         if (theme === 'light') document.documentElement.classList.add('light');
       })();
     </script>
@@ -40,7 +46,7 @@ const { title, description, ogImage, ogType, article } = Astro.props;
       Skip to content
     </a>
     <Header />
-    <main id="main-content" class="flex-1 pt-16">
+    <main id="main-content" class="flex-1">
       <slot />
     </main>
     <Footer />

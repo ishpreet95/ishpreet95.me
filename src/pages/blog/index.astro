@@ -1,34 +1,60 @@
 ---
 import Base from '../../layouts/Base.astro';
-import ArticleCard from '../../components/ArticleCard.astro';
+import PatternCover from '../../components/PatternCover.astro';
 import { getCollection } from 'astro:content';
+import { readingTime } from '../../lib/reading-time';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-
-function readingTime(post: typeof posts[number]): number {
-  const words = (post.body ?? '').split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.ceil(words / 200));
-}
 ---
 
-<Base title="Blog" description="All articles — technical research, deep dives, and developer tooling.">
-  <section class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-    <h1 class="font-serif text-3xl sm:text-4xl text-on-surface mb-12">
-      Blog
+<Base title="Writing" description="Investigations, teardowns, and occasional essays on developer tooling and AI engineering.">
+  <section class="max-w-[1100px] mx-auto px-6 lg:px-24 pt-14 pb-20">
+    <h1 class="font-serif text-4xl sm:text-[56px] leading-none tracking-tight font-medium mb-3">
+      Writing
     </h1>
+    <p class="font-serif italic text-[18px] text-on-surface-variant mb-14 max-w-[56ch]">
+      Investigations, teardowns, and occasional essays. {posts.length} post{posts.length !== 1 ? 's' : ''} so far.
+    </p>
 
-    <div class="max-w-[680px] flex flex-col gap-10">
-      {posts.map((post) => (
-        <ArticleCard
-          title={post.data.title}
-          description={post.data.description}
-          date={post.data.date}
-          tags={post.data.tags}
-          slug={post.id}
-          readingTime={readingTime(post)}
-        />
-      ))}
+    <div class="grid gap-0">
+      {posts.map((post, i) => {
+        const num = String(posts.length - i).padStart(3, '0');
+        const dateStr = post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).toUpperCase();
+        return (
+          <a
+            href={`/blog/${post.id}`}
+            class="group grid grid-cols-1 sm:grid-cols-[64px_100px_1fr_80px] gap-4 sm:gap-8 py-7 items-start hover:opacity-80 transition-opacity"
+            style="border-top: 1px solid var(--ghost-border);"
+          >
+            <div class="hidden sm:block font-mono text-xs text-on-surface-variant pt-2">
+              {num}
+            </div>
+            <div class="hidden sm:block h-20">
+              <PatternCover seed={post.id} height={80} />
+            </div>
+            <div>
+              <div class="flex items-center gap-2.5 mb-2.5 flex-wrap">
+                <span class="font-mono text-[11px] text-on-surface-variant tracking-[0.04em]">
+                  {dateStr}
+                </span>
+                {post.data.tags.map((tag) => (
+                  <span class="tag ghost" style="font-size: 10px;">{tag}</span>
+                ))}
+              </div>
+              <h2 class="font-serif text-xl sm:text-2xl text-on-surface leading-tight font-medium tracking-tight mb-2 group-hover:text-primary transition-colors" style="text-wrap: balance;">
+                {post.data.title}
+              </h2>
+              <p class="text-[15px] text-on-surface-variant leading-relaxed max-w-[62ch]">
+                {post.data.description}
+              </p>
+            </div>
+            <div class="hidden sm:block font-mono text-xs text-on-surface-variant text-right pt-2">
+              {readingTime(post.body ?? '')} min
+            </div>
+          </a>
+        );
+      })}
     </div>
 
     {posts.length === 0 && (
