@@ -33,7 +33,7 @@ const featuredHeadings = (featured?.body ?? '')
 <Base title="Ishpreet" description="Technical research, deep dives, and observations from the intersection of code and craft.">
 
   <!-- Identity strip — dateline -->
-  <section class="max-w-[1200px] mx-auto px-6 lg:px-24 pt-14">
+  <section class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-24 pt-14">
     <div class="font-mono text-[11px] tracking-[0.14em] text-on-surface-variant uppercase flex items-center gap-3.5">
       <span>Vol. 1 &middot; Issue {issueNum}</span>
       <span class="inline-block w-6 h-px" style="background: var(--ghost-border);" />
@@ -43,13 +43,13 @@ const featuredHeadings = (featured?.body ?? '')
 
   <!-- Featured investigation — magazine cover -->
   {featured && (
-    <section class="max-w-[1200px] mx-auto px-6 lg:px-24 pt-14 pb-20">
+    <section class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-24 pt-14 pb-20">
       <!-- Generative cover art -->
       <div class="mb-11">
         <PatternCover seed={featured.id} height={220} label={`Cover · Issue ${issueNum}`} />
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-16 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10 lg:gap-16 items-start">
         <!-- Left: article info -->
         <div>
           <div class="eyebrow mb-7">Current Research</div>
@@ -104,7 +104,7 @@ const featuredHeadings = (featured?.body ?? '')
 
   <!-- Archive preview -->
   {archive.length > 0 && (
-    <section class="max-w-[1200px] mx-auto px-6 lg:px-24 pt-20 pb-10">
+    <section class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-24 pt-20 pb-10">
       <div class="flex items-baseline justify-between mb-8">
         <div class="eyebrow">Archive</div>
         <a href="/blog" class="text-primary text-[13px] inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity">
@@ -119,19 +119,22 @@ const featuredHeadings = (featured?.body ?? '')
           return (
             <a
               href={`/blog/${post.id}`}
-              class="group grid grid-cols-[48px_80px_64px_1fr_80px] items-center gap-6 py-[18px] hover:opacity-80 transition-opacity"
+              class="group grid grid-cols-[1fr_auto] sm:grid-cols-[48px_80px_64px_1fr_80px] items-center gap-3 sm:gap-6 py-[18px] hover:opacity-80 transition-opacity"
               style="border-top: 1px solid var(--ghost-border);"
             >
-              <span class="font-mono text-xs text-on-surface-variant">{num}</span>
-              <span class="font-mono text-xs text-on-surface-variant">{shortDate}</span>
+              <span class="font-mono text-xs text-on-surface-variant hidden sm:block">{num}</span>
+              <span class="font-mono text-xs text-on-surface-variant hidden sm:block">{shortDate}</span>
               <div class="h-11 w-16 hidden sm:block">
                 <PatternCover seed={post.id} height={44} />
               </div>
-              <div class="flex items-baseline gap-3.5 min-w-0">
-                <span class="font-serif text-[22px] text-on-surface tracking-tight group-hover:text-primary transition-colors truncate">
+              <div class="min-w-0">
+                <span class="font-serif text-lg sm:text-[22px] text-on-surface tracking-tight group-hover:text-primary transition-colors line-clamp-1">
                   {post.data.title}
                 </span>
-                {post.data.tags[0] && <span class="tag ghost hidden md:inline-flex">{post.data.tags[0]}</span>}
+                <div class="flex items-center gap-2 mt-1 sm:hidden">
+                  <span class="font-mono text-[11px] text-on-surface-variant">{shortDate}</span>
+                  {post.data.tags[0] && <span class="tag ghost" style="font-size: 10px;">{post.data.tags[0]}</span>}
+                </div>
               </div>
               <span class="font-mono text-xs text-on-surface-variant text-right">{readingTime(post.body ?? '')} min</span>
             </a>
