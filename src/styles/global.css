@@ -200,6 +200,8 @@ body {
 /* No table borders — use background shifts */
 .prose :where(table):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
   border-collapse: separate;
+  display: block;
+  overflow-x: auto;
 }
 
 .prose :where(thead th):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
@@ -283,7 +285,7 @@ html.light .astro-code span {
 .tag {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  padding: 4px 12px;
   background: var(--tag-bg);
   color: var(--tag-text);
   border-radius: 9999px;
@@ -331,7 +333,13 @@ html.light .astro-code span {
   height: 1px;
   background: var(--surface-high);
   border: none;
-  margin: 40px 0;
+  margin: 24px 0;
+}
+
+@media (min-width: 640px) {
+  .hr-tonal {
+    margin: 40px 0;
+  }
 }
 
 /* Tailwind v4 provides built-in sr-only / not-sr-only utilities */

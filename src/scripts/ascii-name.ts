@@ -40,7 +40,15 @@ function createMask(text: string, w: number, h: number): ImageData {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = '#fff';
-  ctx.font = `900 150px Georgia, serif`;
+  // Auto-fit: measure text width and shrink until it fits with 10% padding
+  const maxW = w * 0.9;
+  const maxH = h * 0.8;
+  let fontSize = Math.min(150, Math.floor(maxH));
+  ctx.font = `900 ${fontSize}px Georgia, serif`;
+  while (fontSize > 30 && ctx.measureText(text).width > maxW) {
+    fontSize -= 2;
+    ctx.font = `900 ${fontSize}px Georgia, serif`;
+  }
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
   ctx.fillText(text, w / 2, h / 2);
@@ -66,16 +74,44 @@ function setupAsciiName(canvas: HTMLCanvasElement) {
   const parent = canvas.parentElement;
   if (!parent) return;
   const dpr = Math.min(window.devicePixelRatio, 2);
-  const w = parent.clientWidth;
-  const h = parent.clientHeight;
-  canvas.width = w * dpr;
-  canvas.height = h * dpr;
-  canvas.style.width = w + 'px';
-  canvas.style.height = h + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
   const text = canvas.dataset.asciiName || 'ishpreet';
-  const mask = createMask(text, w, h);
+
+  // Mutable layout state — rebuilt on resize
+  let w = 0, h = 0, cols = 0, rows = 0;
+  let maskCache = new Uint8Array(0);
+
+  function resize() {
+    w = parent.clientWidth;
+    h = parent.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const mask = createMask(text, w, h);
+    cols = Math.ceil(w / CELL_W) + 1;
+    rows = Math.ceil(h / CELL_H) + 1;
+    maskCache = new Uint8Array(cols * rows);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const px = Math.floor(c * CELL_W);
+        const py = Math.floor(r * CELL_H);
+        if (px >= 0 && px < mask.width && py >= 0 && py < mask.height) {
+          maskCache[r * cols + c] = mask.data[(py * mask.width + px) * 4] > 128 ? 1 : 0;
+        }
+      }
+    }
+  }
+  resize();
+
+  // Rebuild layout on container resize (debounced)
+  let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+  const resizeObserver = new ResizeObserver(() => {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 150);
+  });
+  resizeObserver.observe(parent);
 
   // Build atlases — rebuilt when theme changes
   let currentLight = isLightMode();
@@ -103,20 +139,6 @@ function setupAsciiName(canvas: HTMLCanvasElement) {
     attributes: true,
     attributeFilter: ['class'],
   });
-
-  // Pre-compute mask hits
-  const cols = Math.ceil(w / CELL_W) + 1;
-  const rows = Math.ceil(h / CELL_H) + 1;
-  const maskCache = new Uint8Array(cols * rows);
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const px = Math.floor(c * CELL_W);
-      const py = Math.floor(r * CELL_H);
-      if (px >= 0 && px < mask.width && py >= 0 && py < mask.height) {
-        maskCache[r * cols + c] = mask.data[(py * mask.width + px) * 4] > 128 ? 1 : 0;
-      }
-    }
-  }
 
   const state = { rafId: null as number | null };
   let lastFrame = 0;
@@ -154,7 +176,6 @@ function setupAsciiName(canvas: HTMLCanvasElement) {
         const ci = Math.min(CHARS.length - 1, Math.floor(norm * CHARS.length));
         if (ci === 0) continue;
         const pi = Math.min(palette.length - 1, Math.floor(norm * palette.length));
-        // Map norm to alpha step — normalize over [ALPHA_MIN, ALPHA_MAX] range
         const rawAlpha = ALPHA_MIN + norm * (ALPHA_MAX - ALPHA_MIN);
         const ai = Math.min(
           ALPHA_STEPS.length - 1,
@@ -179,7 +200,7 @@ function setupAsciiName(canvas: HTMLCanvasElement) {
   );
   observer.observe(canvas);
 
-  return { state, observer, themeObserver };
+  return { state, observer, themeObserver, resizeObserver };
 }
 
 // --- Static fallback for reduced motion ---
@@ -225,7 +246,7 @@ function renderStatic(canvas: HTMLCanvasElement) {
 }
 
 // --- Init ---
-const instances: { state: { rafId: number | null }; observer: IntersectionObserver; themeObserver: MutationObserver }[] = [];
+const instances: { state: { rafId: number | null }; observer: IntersectionObserver; themeObserver: MutationObserver; resizeObserver: ResizeObserver }[] = [];
 
 function init() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -243,6 +264,7 @@ function cleanup() {
     if (s.state.rafId !== null) cancelAnimationFrame(s.state.rafId);
     s.observer.disconnect();
     s.themeObserver.disconnect();
+    s.resizeObserver.disconnect();
   }
   instances.length = 0;
 }

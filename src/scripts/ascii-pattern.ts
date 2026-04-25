@@ -11,16 +11,17 @@ import { isLightMode, getAccentHueCss, buildPalette } from '../lib/theme';
 // --- Constants ---
 const CELL_W = 8;
 const CELL_H = 11;
-const SKIP_THRESHOLD = 0.25;
+const SKIP_THRESHOLD = 0.18;
 const NOISE_SCALE = 0.1;
 const TIME_SCALE = 0.00003;
 const FRAME_INTERVAL = 100; // ~10fps
 
 function getColor(norm: number, palette: string[], light: boolean): { color: string; alpha: number } {
   const idx = Math.min(palette.length - 1, Math.floor(norm * palette.length));
+  // Softer curve — more cells reach visible brightness while keeping dim background
   const alpha = light
-    ? 0.10 + norm * norm * 0.85
-    : 0.05 + norm * norm * 0.90;
+    ? 0.12 + norm * 0.78
+    : 0.08 + norm * 0.82;
   return { color: palette[idx], alpha };
 }
 
